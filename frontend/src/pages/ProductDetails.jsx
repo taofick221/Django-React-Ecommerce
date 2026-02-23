@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-
+import { useCart } from "../context/useCart";
 
 function ProductDetails() {
   const { id } = useParams();
@@ -8,7 +8,7 @@ function ProductDetails() {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const { addToCart } = useCart();
 
   useEffect(() => {
     fetch(`${BASEURL}/api/products/${id}/`)
@@ -38,7 +38,13 @@ function ProductDetails() {
     return <div>No product found</div>;
   }
 
- 
+  const handleAddToCart = () => {
+    if(!localStorage.getItem('access_token')){
+      window.location.href = '/login';
+      return;
+    }
+    addToCart(product);
+  }
   return (
     <div className="min-h-screen bg-gray-100 flex justify-center items-center py-10">
       <div className="bg-white shadow-lg rounded-2xl p-8 max-w-3xl w-full">
@@ -56,7 +62,7 @@ function ProductDetails() {
             <p className="text-2xl font-semibold text-green-600 mb-6">
               {product.price}
             </p>
-            <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
+            <button onClick={handleAddToCart} className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
                 Add to Cart 🛒
             </button>
             {/* Home Button */}
