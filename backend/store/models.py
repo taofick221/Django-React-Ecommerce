@@ -48,7 +48,7 @@ class Cart(models.Model):
     created_at=models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Card {self.id} for {self.user}"
+        return f"Cart {self.id} for {self.user}"
     
     @property
     def total(self):
