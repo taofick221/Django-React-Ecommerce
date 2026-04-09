@@ -6,7 +6,7 @@ function ProductCard({ product }) {
     <Link to={`/product/${product.id}`}>
       <div className="bg-white rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-transform p-4 cursor-pointer">
         <img
-          src={`${BASEURL}${product.images}`}
+          src={`${BASEURL}${product.image}`}
           alt={product.name}
           className="w-full h-56 object-cover rounded-lg mb-4"
         />

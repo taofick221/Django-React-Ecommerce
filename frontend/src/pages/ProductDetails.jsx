@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { useCart } from "../context/useCart";
+import { useCart } from "../context/CartContext";
 
 function ProductDetails() {
   const { id } = useParams();
@@ -43,14 +43,14 @@ function ProductDetails() {
       window.location.href = '/login';
       return;
     }
-    addToCart(product);
+    addToCart(product.id);
   }
   return (
     <div className="min-h-screen bg-gray-100 flex justify-center items-center py-10">
       <div className="bg-white shadow-lg rounded-2xl p-8 max-w-3xl w-full">
         <div className="flex flex-col md:flex-row gap-8">
           <img
-            src={`${product.images}`}
+            src={`${product.image}`}
             alt={product.name}
             className="w-full md:w-1/2 h-auto object-cover rounded-lg"
           />

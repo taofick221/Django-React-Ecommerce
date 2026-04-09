@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.response import Response
 from .models import Category,Product,Cart,CartItem,Order,OrderItem
-from .serializer import CategorySerializer,ProductsSerializer,CartSerilizer,CartItemSerializer,UserSerializer,RegisterSerializer
+from .serializer import CategorySerializer,ProductsSerializer,CartSerializer,CartItemSerializer,UserSerializer,RegisterSerializer
 
 
 @api_view(['GET'])
@@ -31,12 +31,14 @@ def get_category(request):
     return Response(serializer.data)
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_cart(request):
     cart,created=Cart.objects.get_or_create(user=request.user)
-    serilizer=CartSerilizer(cart)
-    return Response(serilizer.data)
+    serializer=CartSerializer(cart)
+    return Response(serializer.data)
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def add_to_cart(request):
     product_id=request.data.get('product_id')
     product=Product.objects.get(id=product_id)
@@ -45,9 +47,10 @@ def add_to_cart(request):
     if not created:
         item.quantity +=1
         item.save()
-    return Response({'message':'Product added to cart','cart':CartSerilizer(cart).data})
+    return Response({'message':'Product added to cart','cart':CartSerializer(cart).data})
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def update_cart_quantity(request):
     item_id=request.data.get('item_id')
     quantity=request.data.get('quantity')
@@ -66,6 +69,7 @@ def update_cart_quantity(request):
         return Response({'error':'Cart item is not found'},status=404)
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def remove_from_cart(request):
     item_id=request.data.get('item_id')
     CartItem.objects.filter(id=item_id).delete()
