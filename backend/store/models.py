@@ -67,3 +67,6 @@ class CartItem(models.Model):
         return self.quantity*self.product.price
     
     
+
+
+
