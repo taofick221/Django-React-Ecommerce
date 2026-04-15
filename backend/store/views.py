@@ -6,14 +6,74 @@ from rest_framework.response import Response
 from django.contrib.auth.models import User
 from .models import Category,Product,Cart,CartItem,Order,OrderItem,UserProfile
 from .serializer import CategorySerializer,ProductsSerializer,CartSerializer,CartItemSerializer,RegisterSerializer,UserSerializer
-
+from django.core.paginator import Paginator
+from django.db.models import Q
 
 
 @api_view(['GET'])
-def get_products(request):
-    products=Product.objects.all()
+def home(request):
+    products=Product.objects.all().order_by('-id')[:8]
     serializer=ProductsSerializer(products,many=True)
     return Response(serializer.data,status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def get_products(request):
+    products = Product.objects.all().order_by('id')
+
+    #  search (name + description)
+    search = request.GET.get('search')
+    if search:
+        products = products.filter(
+            Q(name__icontains=search) |
+            Q(description__icontains=search)
+        )
+
+    #  price range
+    min_price = request.GET.get('min_price')
+    max_price = request.GET.get('max_price')
+
+    if min_price:
+        products = products.filter(price__gte=min_price)
+    if max_price:
+        products = products.filter(price__lte=max_price)
+
+    #  availability
+    in_stock = request.GET.get('in_stock')
+    if in_stock is not None:
+        if in_stock.lower() == 'true':
+            products = products.filter(in_stock=True)
+        elif in_stock.lower() == 'false':
+            products = products.filter(in_stock=False)
+
+    # 🏷 brand
+    brand = request.GET.get('brand')
+    if brand:
+        products = products.filter(brand__iexact=brand)
+
+    #  color
+    color = request.GET.get('color')
+    if color:
+        products = products.filter(color__iexact=color)
+
+    #  size
+    size = request.GET.get('size')
+    if size:
+        products = products.filter(size__iexact=size)
+
+    #  pagination
+    paginator = Paginator(products, 6)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    serializer = ProductsSerializer(page_obj, many=True)
+
+    return Response({
+        "page": page_obj.number,
+        "total_pages": paginator.num_pages,
+        "total_products": paginator.count,
+        "data": serializer.data
+    }, status=status.HTTP_200_OK)
+
 
 @api_view(['GET'])
 def get_product(request,pk):
